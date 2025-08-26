@@ -6,7 +6,6 @@ from controllers import routes
 # Criando uma instância do Flask
 # A variável __name__ representa o nome da aplicação
 app = Flask(__name__, template_folder='views')
-
 routes.init_app(app)
 
 # Se for executado diretamente pelo interpretador
