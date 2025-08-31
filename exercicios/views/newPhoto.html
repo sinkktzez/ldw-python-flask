@@ -1,0 +1,48 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<h1 class="mb-4">Cadastrar Nova Foto</h1>
+
+<form action="{{ url_for('newphoto') }}" method="POST" enctype="multipart/form-data" class="mb-5">
+  <div class="mb-3">
+    <label for="titulo" class="form-label">Título:</label>
+    <input type="text" name="titulo" class="form-control" required>
+  </div>
+  <div class="mb-3">
+    <label for="ano" class="form-label">Ano:</label>
+    <input type="number" name="ano" class="form-control" required>
+  </div>
+  <div class="mb-3">
+    <label for="descricao" class="form-label">Descrição:</label>
+    <textarea name="descricao" class="form-control" rows="2" required></textarea>
+  </div>
+  <div class="mb-3">
+    <label for="imagem" class="form-label">Imagem:</label>
+    <input type="file" name="imagem" class="form-control">
+  </div>
+  <button type="submit" class="btn btn-primary">Cadastrar</button>
+</form>
+
+<h2>Fotos Cadastradas</h2>
+<table class="table table-striped table-bordered align-middle">
+  <thead class="table-dark">
+    <tr>
+      <th>Título</th>
+      <th>Ano</th>
+      <th>Descrição</th>
+      <th>Imagem</th>
+    </tr>
+  </thead>
+  <tbody>
+    {% for foto in fotos %}
+    <tr>
+      <td>{{ foto['Título'] }}</td>
+      <td>{{ foto['Ano'] }}</td>
+      <td>{{ foto['Descrição'] }}</td>
+      <td><img src="{{ foto['Imagem'] }}" alt="{{ foto['Título'] }}" style="max-height:100px;"></td>
+    </tr>
+    {% endfor %}
+  </tbody>
+</table>
+{% endblock %}
+c
