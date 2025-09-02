@@ -1,11 +1,13 @@
 from flask import render_template, request, redirect, url_for
+import urllib  # Envia requisições e uma URL
+import json  # Faz a conversão dos dados em JSON para dicionário em Python e vice versa
 
 
 def init_app(app):
     # Lista em Python (array)
     players = ['Yan', 'Ferrari', 'Valéria', 'Amanda']
     # Array de objetos - Lista de jogos
-    gamelist= [{'Título' : 'CS 1.6', 'Ano' : 2000, 'Categoria' : 'FPS Online'}]
+    gamelist = [{'Título': 'CS 1.6', 'Ano': 2000, 'Categoria': 'FPS Online'}]
 
     # Definindo a rota principal da aplicação '/'
     @app.route('/')
@@ -26,12 +28,35 @@ def init_app(app):
                 players.append(request.form.get('player'))
                 return redirect(url_for('games'))
         return render_template('games.html', title=title, year=year, category=category, players=players, console=console)
-    
+
     @app.route('/newgame', methods=['GET', 'POST'])
     def newgame():
         # Tratando a requesição POST
         if request.method == 'POST':
             if request.form.get('title') and request.form.get('year') and request.form.get('category'):
-                gamelist.append({'Título' : request.form.get('title'), 'Ano' : request.form.get('year'), 'Categoria' : request.form.get('category')})
+                gamelist.append({'Título': request.form.get('title'), 'Ano': request.form.get(
+                    'year'), 'Categoria': request.form.get('category')})
                 return redirect(url_for('newgame'))
-        return render_template('newgame.html', gamelist=gamelist) 
+        return render_template('newgame.html', gamelist=gamelist)
+
+    @app.route('/apigames', methods=['GET', 'POST'])
+    # Criando parâmetros para a rota
+    @app.route('/apigames/<int:id>', methods=['GET', 'POST'])
+    def apigames(id=None):
+        url = 'https://www.freetogame.com/api/games'
+        response = urllib.request.urlopen(url)
+        data = response.read()
+        gamesList = json.loads(data)
+        # Verificando se o parâmetro foi enviado
+        if id:
+            gameInfo = []
+            for game in gamesList:
+                if game['id'] == id:  # Comparando os IDs
+                    gameInfo = game
+                    break
+            if gameInfo:
+                return render_template('gameinfo.html', gameInfo=gameInfo)
+            else:
+                return f'Game com a ID {id} não foi encontrado.'
+        else:
+            return render_template('apigames.html', gamesList=gamesList)
