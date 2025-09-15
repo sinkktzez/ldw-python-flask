@@ -1,0 +1,12 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="text-center my-5">
+  <h2 class="mb-4">Bem-vindo ao Memoptis!</h2>
+  <p class="lead mb-4">
+    O Memoptis é um projeto pessoal onde compartilho e registro os momentos mais especiais da minha vida através da fotografia.
+    Cada foto aqui captura uma memória, uma história ou um instante que merece ser lembrado.
+  </p>
+  <a href="{{ url_for('photos') }}" class="btn btn-primary btn-lg">Ver Galeria</a>
+</div>
+{% endblock %}

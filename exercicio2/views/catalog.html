@@ -1,0 +1,24 @@
+{% extends "base.html" %} {% block content %}
+<h1 class="mb-4">Catálogo de Fotos</h1>
+<div class="row">
+  {% for foto in fotos %}
+  <div class="col-md-3 mb-4">
+    <div class="card h-100 shadow-sm">
+      <img
+        src="https://picsum.photos/id/{{ foto.id }}/300/200"
+        class="card-img-top"
+        alt="Foto de {{ foto.author }}"
+      />
+      <div class="card-body">
+        <h6 class="card-title">{{ foto.author }}</h6>
+        <a
+          href="{{ url_for('catalogdetail', foto_id=foto.id) }}"
+          class="btn btn-primary btn-sm"
+          >Ver Detalhes</a
+        >
+      </div>
+    </div>
+  </div>
+  {% endfor %}
+</div>
+{% endblock %}
