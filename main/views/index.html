@@ -1,10 +1,9 @@
 {% extends 'base.html' %}
+
 {% block content %}
-
-<h2>Essa é a homepage!</h2>
+<h1>Bem-vindo ao The Games!</h1>
 <hr>
-
-<a href="/games"><p>Página de jogos</p></a>
-<a href="{{url_for('newgame')}}"><p>Cadastrar jogos</p></a>
+<!-- Importando a imagem -->
+<img src="{{url_for('static', filename='imgs/thumb.jpg')}}" alt="The Games" width="800px">
 
 {% endblock content %}

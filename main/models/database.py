@@ -1,22 +1,40 @@
 from flask_sqlalchemy import SQLAlchemy
-# Criando uma instancia do sql alchemy
+
 db = SQLAlchemy()
+
+# Classe responsável por criar a entidade "Console" com seus atributos.
+
+
+class Console(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    nome = db.Column(db.String(150))
+    fabricante = db.Column(db.String(150))
+    ano_lancamento = db.Column(db.Integer)
+
+    def __init__(self, nome, fabricante, ano_lancamento):
+        self.nome = nome
+        self.fabricante = fabricante
+        self.ano_lancamento = ano_lancamento
+
+# Classe responsável por criar a entidade "Games" com seus atributos.
 
 
 class Game(db.Model):
     id = db.Column(db.Integer, primary_key=True)
-    title = db.Column(db.String(150))
-    year = db.Column(db.Integer)
-    category = db.Column(db.String(150))
-    platform = db.Column(db.String(20))
-    price = db.Column(db.Float)
-    quantity = db.Column(db.Integer)
+    titulo = db.Column(db.String(150))
+    ano = db.Column(db.Integer)
+    categoria = db.Column(db.String(150))
+    preco = db.Column(db.Float)
+    quantidade = db.Column(db.Integer)
+    # Criando a chave estrangeira
+    console_id = db.Column(db.Integer, db.ForeignKey('console.id'))
+    # Definindo o relacionamento
+    console = db.relationship('Console', backref=db.backref('game', lazy=True))
 
-    # Metodo construtor da classe
-    def __init__(self, title, year, category, platform, price, quantity):
-        self.title = title
-        self.year = year
-        self.category = category
-        self.platform = platform
-        self.price = price
-        self.quantity = quantity
+    def __init__(self, titulo, ano, categoria, preco, quantidade, console_id):
+        self.titulo = titulo
+        self.ano = ano
+        self.categoria = categoria
+        self.preco = preco
+        self.quantidade = quantidade
+        self.console_id = console_id

@@ -1,37 +1,29 @@
 {% extends 'base.html' %}
 {% block content %}
+    <h2>Esta é a página de Games.</h2>
+    <hr>
+    <p><strong>Game mais jogado no momento:</strong></p>
+    {% for k, v in game.items() %}
+        <details>
+            <summary>{{k}}</summary>
+            <p>{{v}}</p>
+        </details>
+    {% endfor %}
 
-<h1>Esta é a página de Games!</h1>
-<h3>Jogo em destaque:</h3>
-<ul>
-  <li>Título: <strong>{{title}}</strong></li>
-  <li>Ano: <strong>{{year}}</strong></li>
-  <li>Categoria: <strong>{{category}}</strong></li>
-</ul>
-<p>O jogo {{title}} tem {{2025-year}} anos.</p>
+    <p>O jogo {{game['Título']}} tem {{2024-game['Ano']}} anos.</p>
 
-{# Esse é o um comentário em jinja2#}
-
-<h3>Top players:</h3>
-<ol>
-  {% for player in players %}
-  <li>{{player}}</li>
-  {% endfor %}
-</ol>
-<hr />
-<form action="{{url_for('games')}}" method="POST">
-  <label for="player">Jogador:</label>
-  <input type="text" name="player" class="form-control w-50"/>
-  <input type="submit" value="Entrar" class="btn btn-success"/>
-</form>
-<hr />
-
-<h4>Console mais bem avaliado:</h4>
-{% for key, value in console.items() %}
-<details>
-  <summary>{{key}}</summary>
-  <p>{{value}}</p>
-</details>
-{% endfor %}
-
+    <p><strong>Está sendo jogador por:</strong></p>
+    <ol>
+        {% for j in jogadores: %}
+            <li>{{j}}</li>
+        {% endfor %}
+    </ol>
+    <hr>
+    <h4>Entrar no jogo</h4>
+    <form action="{{url_for('games')}}", method="POST">
+        <label for="jogador">Jogador:</label>
+        <input type="text" name="jogador">
+        <input type="submit" value="Entrar">
+    </form>
+    <br>
 {% endblock content %}
