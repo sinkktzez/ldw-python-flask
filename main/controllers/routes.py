@@ -1,24 +1,25 @@
-from flask import render_template, request, url_for, redirect
-from models.database import db, Game, Console
+from flask import render_template, request, url_for, redirect, flash, session
+from models.database import db, Game, Console, Usuario
 import urllib
 import json
-
+#importando werkzeug
+from werkzeug.security import generate_password_hash, check_password_hash
 # Lista de jogadores
 jogadores = ['Jogador 1', 'Jogador 2', 'Jogador 3',
              'Jogador 4', 'Jogador 5', 'Jogador 6', 'Jogador 7']
 # Lista de jogos
 gamelist = [{'Título': 'CS-GO', 'Ano': 2012, 'Categoria': 'FPS Online'}]
-
-
+ 
+ 
 def init_app(app):
     @app.route('/')
     def home():
         return render_template('index.html')
-
+ 
     @app.route('/games', methods=['GET', 'POST'])
     def games():
         game = gamelist[0]
-
+ 
         if request.method == 'POST':
             if request.form.get('jogador'):
                 jogadores.append(request.form.get('jogador'))
@@ -26,7 +27,7 @@ def init_app(app):
         return render_template('games.html',
                                game=game,
                                jogadores=jogadores)
-
+ 
     @app.route('/cadgames', methods=['GET', 'POST'])
     def cadgames():
         if request.method == 'POST':
@@ -34,10 +35,10 @@ def init_app(app):
                 gamelist.append({'Título': request.form.get('titulo'), 'Ano': request.form.get(
                     'ano'), 'Categoria': request.form.get('categoria')})
                 return redirect(url_for('cadgames'))
-
+ 
         return render_template('cadgames.html',
                                gamelist=gamelist)
-
+ 
     # CRUD GAMES - LISTAGEM, CADASTRO E EXCLUSÃO
     @app.route('/games/estoque', methods=['GET', 'POST'])
     @app.route('/games/estoque/delete/<int:id>')
@@ -64,9 +65,14 @@ def init_app(app):
             # Faz um SELECT no banco a partir da pagina informada (page)
             # Filtrando os registro de 3 em 3 (per_page)
             games_page = Game.query.paginate(page=page, per_page=per_page)
+       
+            # SELECIONANDO TODOS OS CONSOLES CADASTRADOS
             consoles = Console.query.all()
+            consoles_page = Console.query.paginate(
+                page=page, per_page=per_page)
+           
             return render_template('gamesestoque.html', gamesestoque=games_page, consoles=consoles)
-
+ 
     # CRUD GAMES - EDIÇÃO
     @app.route('/games/edit/<int:id>', methods=['GET', 'POST'])
     def gameEdit(id):
@@ -78,13 +84,12 @@ def init_app(app):
             g.categoria = request.form['categoria']
             g.preco = request.form['preco']
             g.quantidade = request.form['quantidade']
-            g.console_id = request.form['console']
             db.session.commit()
             return redirect(url_for('gamesEstoque'))
-        # Selecionando os consoles
+        # SELECIONANDO OS CONSOLES
         consoles = Console.query.all()
-        return render_template('editgame.html', g=g, consoles = consoles)
-
+        return render_template('editgame.html', g=g, consoles=consoles)
+ 
     # CRUD CONSOLES - LISTAGEM, CADASTRO E EXCLUSÃO
     @app.route('/consoles/estoque', methods=['GET', 'POST'])
     @app.route('/consoles/estoque/delete/<int:id>')
@@ -110,11 +115,12 @@ def init_app(app):
             per_page = 3
             # Faz um SELECT no banco a partir da pagina informada (page)
             # Filtrando os registro de 3 em 3 (per_page)
-            consoles_page = Console.query.paginate(page=page, per_page=per_page)
-            # Selecionando todos os consoles cadastrados
+                        # SELECIONANDO TODOS OS CONSOLES CADASTRADOS
             consoles = Console.query.all()
+            consoles_page = Console.query.paginate(
+                page=page, per_page=per_page)
             return render_template('consolesestoque.html', consolesestoque=consoles_page, consoles=consoles)
-
+ 
     # CRUD CONSOLES - EDIÇÃO
     @app.route('/consoles/edit/<int:id>', methods=['GET', 'POST'])
     def consoleEdit(id):
@@ -127,7 +133,7 @@ def init_app(app):
             db.session.commit()
             return redirect(url_for('consolesEstoque'))
         return render_template('editconsole.html', console=console)
-
+ 
     @app.route('/apigames', methods=['GET', 'POST'])
     @app.route('/apigames/<int:id>', methods=['GET', 'POST'])
     def apigames(id=None):
@@ -147,3 +153,50 @@ def init_app(app):
                 return f'Game com a ID {id} não foi encontrado.'
         else:
             return render_template('apigames.html', gamesjson=gamesjson)
+ 
+    @app.route('/login', methods=['GET', 'POST'])
+    def login():
+        if request.method == 'POST':
+            username = request.form['username']
+            password = request.form['password']
+            # Buscando usuario no banco
+            user = Usuario.query.filter_by(username=username).first()
+            # Usuário existe e a senha está correta
+            if user and check_password_hash(user.password, password):
+                session['user_id'] = user.id
+                session['username'] = user.username
+                nickname = user.username.split('@')
+                flash(f'Login realizado com sucesso! Bem vindo {nickname[0]}!','success')
+                return redirect(url_for('home'))
+        # Usuário não existe ou senha incorreta
+            else:
+                flash('Falha no login. Verifique o nome de usuário e senha.', 'danger')
+                return redirect(url_for('home'))
+        return render_template('login.html')
+   
+    @app.route('/logout', methods=['GET', 'POST'])
+    def logout():
+        session.clear()
+        flash('Você foi desconectado!', 'danger')
+        return redirect(url_for('home'))
+   
+    @app.route('/caduser', methods=['GET', 'POST'])
+    def caduser():
+        if request.method == 'POST':
+            username = request.form['username']
+            password = request.form['password']
+            # Verificando se o usuário já existe
+            user = Usuario.query.filter_by(username=username).first()
+            # Se existir
+            if user:
+                flash("Usuário já cadastrado. Faça o login!", 'danger')
+                return redirect(url_for('caduser'))
+            # Se não existir
+            else:
+                hashed_password = generate_password_hash(password, method='scrypt')
+                newUser = Usuario(username=username, password=hashed_password)
+                db.session.add(newUser)
+                db.session.commit()
+                flash('Registro realizado com sucesso! Você já pode fazer o login!', 'success')
+                return redirect(url_for('login'))
+        return render_template('caduser.html')

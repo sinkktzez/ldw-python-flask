@@ -34,18 +34,34 @@
               <a class="nav-link" href="{{url_for('apigames')}}">Catálogo de Jogos (API)</a>
             </li>
           </ul>
+          <!-- Link de login/logout -->
+           <span style="margin-left: auto">
+            <ul class="navbar-nav">
+              <!-- Usuário não logado -->
+              {% if 'user_id' not in session: %}
+              <li class="nav-item">
+                <a href="{{url_for('login')}}" class="nav-link">Login</a>
+              </li>
+              <!-- Usuário logado -->
+               {% else %}
+               <li class="nav-item">
+                <a href="{{url_for('logout')}}" class="nav-link">Logout</a>
+              </li>
+              {% endif %}
+            </ul>
+           </span>
         </div>
       </nav>
-
+ 
     <header>
         <h1 style="text-align: center;">The Games</h1>
         <hr>
     </header>
-
+ 
     {% block content %}
     <!-- Aqui irá o conteúdo das outras páginas -->
     {% endblock content %}
-
+ 
     <footer>
         <hr>
         <p style="text-align: center;"> Todos os direitos reservados ®</p>

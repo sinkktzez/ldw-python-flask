@@ -21,6 +21,12 @@ app.config['DATABASE_NAME'] = DB_NAME
 # Passando o endereço do banco ao Flask
 app.config['SQLALCHEMY_DATABASE_URI'] = f'mysql://root@localhost/{DB_NAME}'
 
+# Secret para as flash messages
+app.config['SECRET_KEY'] = 'thegamessecret'
+
+# Define um tempo de duração da sessão
+app.config['PERMENENT_SESSIONS_LIFETIME'] = 1800
+
 # Iniciando o servidor no localhost, porta 5000, modo de depuração ativado
 if __name__ == '__main__':
     # Criando os dados de conexão:

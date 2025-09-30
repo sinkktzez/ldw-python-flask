@@ -42,13 +42,14 @@
         class="form-control"
         required
       />
-      <!-- SELECT para escolher o console -->
+      <!-- SELECT PARA ESCOLHER O CONSOLE -->
       <select name="console" class="form-select" required>
         <option value="" selected disabled>Selecione um console...</option>
         {% for console in consoles %}
         <option value="{{console.id}}">{{console.nome}}</option>
         {% endfor %}
       </select>
+
       <input type="submit" value="Cadastrar" class="btn btn-success" />
       <input type="reset" value="Limpar" class="btn btn-danger" />
     </form>
