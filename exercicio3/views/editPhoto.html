@@ -1,0 +1,43 @@
+{% extends "base.html" %}
+
+{% block title %}{{ 'Editar Foto' if foto else 'Nova Foto' }}{% endblock %}
+
+{% block content %}
+<h1>{{ 'Editar Foto' if foto else 'Nova Foto' }}</h1>
+
+<form method="POST" enctype="multipart/form-data">
+    <div class="mb-3">
+        <label for="titulo" class="form-label">Título</label>
+        <input type="text" class="form-control" id="titulo" name="titulo" value="{{ foto.titulo if foto else '' }}" required>
+    </div>
+
+    <div class="mb-3">
+        <label for="descricao" class="form-label">Descrição</label>
+        <textarea class="form-control" id="descricao" name="descricao">{{ foto.descricao if foto else '' }}</textarea>
+    </div>
+
+    <div class="mb-3">
+        <label for="arquivo" class="form-label">Imagem</label>
+        {% if foto and foto.arquivo %}
+        <div class="mb-2">
+            <img src="{{ url_for('static', filename='uploads/' + foto.arquivo) }}" alt="{{ foto.titulo }}" class="img-thumbnail" style="max-width:200px;">
+        </div>
+        {% endif %}
+        <input type="file" class="form-control" id="arquivo" name="arquivo">
+    </div>
+
+    {% if albuns %}
+    <div class="mb-3">
+        <label for="album_id" class="form-label">Álbum</label>
+        <select class="form-select" name="album_id">
+            {% for album in albuns %}
+            <option value="{{ album.id }}" {% if foto and foto.album_id == album.id %}selected{% endif %}>{{ album.nome }}</option>
+            {% endfor %}
+        </select>
+    </div>
+    {% endif %}
+
+    <button type="submit" class="btn btn-primary">{{ 'Salvar Alterações' if foto else 'Adicionar Foto' }}</button>
+    <a href="{{ url_for('photos', album_id=foto.album_id if foto else albuns[0].id) }}" class="btn btn-secondary">Cancelar</a>
+</form>
+{% endblock %}

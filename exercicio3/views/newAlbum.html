@@ -1,0 +1,16 @@
+{% extends "base.html" %}
+{% block content %}
+<h1>{{ 'Editar Álbum' if album else 'Novo Álbum' }}</h1>
+<form method="post">
+    <div class="mb-3">
+        <label for="nome" class="form-label">Nome</label>
+        <input type="text" class="form-control" id="nome" name="nome" value="{{ album.nome if album else '' }}" required>
+    </div>
+    <div class="mb-3">
+        <label for="descricao" class="form-label">Descrição</label>
+        <textarea class="form-control" id="descricao" name="descricao">{{ album.descricao if album else '' }}</textarea>
+    </div>
+    <button type="submit" class="btn btn-primary">{{ 'Salvar Alterações' if album else 'Criar Álbum' }}</button>
+    <a href="{{ url_for('albuns') }}" class="btn btn-secondary">Cancelar</a>
+</form>
+{% endblock %}
