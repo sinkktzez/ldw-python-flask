@@ -1,7 +1,12 @@
 from flask import render_template, request, url_for, redirect, flash, session
-from models.database import db, Game, Console, Usuario
+from models.database import db, Game, Console, Usuario, Imagem
 import urllib
 import json
+# Biblioteca que cria identificador único para algo
+import uuid
+# Biblioteca para manipular diretórios
+import os
+
 #importando werkzeug
 from werkzeug.security import generate_password_hash, check_password_hash
 # Lista de jogadores
@@ -11,8 +16,23 @@ jogadores = ['Jogador 1', 'Jogador 2', 'Jogador 3',
 gamelist = [{'Título': 'CS-GO', 'Ano': 2012, 'Categoria': 'FPS Online'}]
  
  
+
 def init_app(app):
-    @app.route('/')
+    # Função de middleware para verficar a autenticação do usuário
+    @app.before_request
+    def check_auth():
+        # Rotas que não precisam de autentição para serem acessadas
+        routes = ['login', 'caduser', 'home']
+        
+        if request.endpoint in routes or request.path.startswith('/static/'):
+            return
+        
+        # Se a rota não estiver na whitelist
+        # Verifica se o usuário está autenticado
+        if 'user_id' not in session:
+            return redirect(url_for('login'))
+    
+    @app.route('/') # Decorator
     def home():
         return render_template('index.html')
  
@@ -200,3 +220,36 @@ def init_app(app):
                 flash('Registro realizado com sucesso! Você já pode fazer o login!', 'success')
                 return redirect(url_for('login'))
         return render_template('caduser.html')
+    
+    # Definindo tipos de arquivos permitidos
+    FILE_TYPES = set(['png', 'jpg', 'jpeg', 'gif'])
+    def arquivos_permitidos(filename):
+        return '.' in filename and filename.rsplit('.',1)[1].lower() in FILE_TYPES
+    
+    # ROTA DE UPLOAD DE ARQUIVOS (GALERIA)
+    @app.route('/galeria', methods=['GET', 'POST'])
+    def galeria():
+        # Selecionando todas as imagens do banco
+        images = Imagem.query.all()
+        
+        if request.method == 'POST':
+            # Captura o arquivo vindo do formulário
+            file = request.files['file'] # name do form
+            # Enviando o nome do arquivo para a função para verificar se o tipo do arquivo é permitido
+            if not arquivos_permitidos(file.filename):
+                flash("Utilize somente os tipos de arquivos de imagnes (png, jpg, jpeg, gif)", "danger")
+                return redirect(request.url)
+            # Se o arquivo for permitido
+            else:
+                # Salvar o arquivo na pasta uploads
+                # Definindo um nome aleatório para o arquivo
+                filename = str(uuid.uuid4())
+                # Gravando o nome do arquivo no banco de dados
+                image = Imagem(filename)
+                db.session.add(image)
+                db.session.commit()
+                # Salvando o arquivo
+                file.save(os.path.join(app.config['UPLOAD_FOLDER'],filename))
+                flash("Imagem enviada com sucesso!", "success")
+                return redirect(url_for('galeria'))
+        return render_template('galeria.html', images=images)

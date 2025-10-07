@@ -27,6 +27,12 @@ app.config['SECRET_KEY'] = 'thegamessecret'
 # Define um tempo de duração da sessão
 app.config['PERMENENT_SESSIONS_LIFETIME'] = 1800
 
+# Define a pasta que receberá os arquivos de upload
+app.config['UPLOAD_FOLDER'] = 'static/uploads'
+
+# Define o tamanho máximo de um arquivo de upload
+app.config['MAX_CONTENT_LENGTH'] = 16 * 1024 * 1024
+
 # Iniciando o servidor no localhost, porta 5000, modo de depuração ativado
 if __name__ == '__main__':
     # Criando os dados de conexão:
